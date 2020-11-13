@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+web(cmd) async{
+  var url= "http://192.168.43.73/cgi-bin/web.py?x=${cmd}";
+  var response = await http.get(url);
+  print(response.body);
+
+  
+}
+String cmd;
+myapp() {
+  var scaff = Scaffold(
+      appBar: AppBar(
+        title: Text('Test'),
+        backgroundColor: Colors.amber,
+      ),
+      body: Center(
+        child: Container(
+          width: 300,
+          height: 400,
+          color: Colors.grey.shade300,
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          child: Column(
+            children: <Widget>[
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter your command',
+                  border: OutlineInputBorder(),
+                  icon: Icon(Icons.input),
+                ),
+                onChanged: (v){
+                  cmd=v;
+                },
+              ),
+              RaisedButton(
+                onPressed: (){
+                  web(cmd);
+                },
+                child: Text('Click Here'),
+                color: Colors.amber,
+              ),
+            ],
+          ),
+        ),
+      ));
+  return MaterialApp(home: scaff);
+}
