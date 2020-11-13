@@ -15,6 +15,8 @@ class CmdLine extends StatefulWidget {
 class _CmdLineState extends State<CmdLine> {
   TextEditingController cmdController = new TextEditingController();
   String cmd;
+  var fsconnect = FirebaseFirestore.instance;
+  Stream outstream;
   var resp;
   List<Map> lst = [];
   web(cmd) async {
@@ -31,10 +33,13 @@ class _CmdLineState extends State<CmdLine> {
   }
 
   commandList() {
+    return StreamBuilder(
+      stream: outstream,
+      builder:(context,snapshot) {
     return ListView.builder(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: lst.length,
+      itemCount: snapshot.data.docs.length,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -52,7 +57,7 @@ class _CmdLineState extends State<CmdLine> {
                   width: 8,
                 ),
                 Text(
-                  lst[index]['cmd'] ?? '',
+                  snapshot.data.docs[index].data()['cmd'] ?? '',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -64,16 +69,28 @@ class _CmdLineState extends State<CmdLine> {
               padding: EdgeInsets.only(top: 7),
               alignment: Alignment.centerLeft,
               child: Text(
-                lst[index]['op'] ?? "Output loading....",
+                snapshot.data.docs[index].data()['op'] ?? '',
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
           ],
         );
       },
-    );
+    );});
   }
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    getOutput();
+    super.initState();
+  }
+  getOutput() async{
+   await fsconnect.collections('linux').snapshots().then((snap){
+     setState(() {
+       outstream = snap;
+     });
+   });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
